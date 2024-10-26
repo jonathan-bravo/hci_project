@@ -1,0 +1,29 @@
+#canvas-overlay {
+    position: relative;
+    pointer-events: none;
+}
+
+.cursor-move {
+    z-index: 10;
+    position: absolute;
+}
+
+.absolute {
+    position: absolute;
+}
+
+#canvas {
+    overflow: auto;
+    position: relative; /* Ensure the canvas is the positioning context */
+}
+
+#svg-layer {
+    pointer-events: auto;
+    z-index: 2;
+}
+
+.flow-line {
+    pointer-events: auto;
+    cursor: pointer; /* Add a cursor to indicate interactivity */
+}
+
