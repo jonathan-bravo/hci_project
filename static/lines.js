@@ -47,6 +47,28 @@ function drawLine(x1, y1, x2, y2, button1, button2) {
     }
 }
 
+function addLineIfNotExists(button1, button2) {
+    // Check if a line already exists between the two buttons
+    const lineExists = lines.some(lineObj => 
+        (lineObj.button1 === button1 && lineObj.button2 === button2) ||
+        (lineObj.button1 === button2 && lineObj.button2 === button1)
+    );
+
+    // Only add a line if it doesn't already exist
+    if (!lineExists) {
+        const rect1 = button1.getBoundingClientRect();
+        const rect2 = button2.getBoundingClientRect();
+        const overlayRect = canvasOverlay.getBoundingClientRect();
+
+        const x1 = rect1.left + rect1.width / 2 - overlayRect.left;
+        const y1 = rect1.top + rect1.height / 2 - overlayRect.top;
+        const x2 = rect2.left + rect2.width / 2 - overlayRect.left;
+        const y2 = rect2.top + rect2.height / 2 - overlayRect.top;
+
+        drawLine(x1, y1, x2, y2, button1, button2);
+    }
+}
+
 canvasOverlay.addEventListener('click', function(event) {
     if (event.target.tagName === 'BUTTON') {
         if (!firstButton) {
@@ -57,19 +79,20 @@ canvasOverlay.addEventListener('click', function(event) {
             // Select the second button and draw a line
             const secondButton = event.target;
             if (firstButton !== secondButton) {
-                const rect1 = firstButton.getBoundingClientRect();
-                const rect2 = secondButton.getBoundingClientRect();
-                const overlayRect = canvasOverlay.getBoundingClientRect();
+                // const rect1 = firstButton.getBoundingClientRect();
+                // const rect2 = secondButton.getBoundingClientRect();
+                // const overlayRect = canvasOverlay.getBoundingClientRect();
 
-                // Calculate centers of the buttons
-                const x1 = rect1.left + rect1.width / 2 - overlayRect.left;
-                const y1 = rect1.top + rect1.height / 2 - overlayRect.top;
-                const x2 = rect2.left + rect2.width / 2 - overlayRect.left;
-                const y2 = rect2.top + rect2.height / 2 - overlayRect.top;
+                // // Calculate centers of the buttons
+                // const x1 = rect1.left + rect1.width / 2 - overlayRect.left;
+                // const y1 = rect1.top + rect1.height / 2 - overlayRect.top;
+                // const x2 = rect2.left + rect2.width / 2 - overlayRect.left;
+                // const y2 = rect2.top + rect2.height / 2 - overlayRect.top;
 
 
-                // Draw the line
-                drawLine(x1, y1, x2, y2, firstButton, secondButton);
+                // // Draw the line
+                // drawLine(x1, y1, x2, y2, firstButton, secondButton);
+                addLineIfNotExists(firstButton, secondButton);
             }
 
             // Reset selection
