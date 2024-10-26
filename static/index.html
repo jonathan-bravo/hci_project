@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakemake Wrappers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.7/leader-line.min.js"></script>
+    <style src="style.css"></style>
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-4">Snakemake Wrappers</h1>
+    <div class="flex gap-4">
+        <!-- Sidebar for nested list -->
+        <div class="w-1/4 p-4 bg-white rounded shadow-md">
+            <h2 class="text-lg font-semibold mb-2">Wrappers</h2>
+            <ul id="tree" class="list-none pl-4"></ul>
+        </div>
+
+        <!-- Canvas area -->
+        <div class="flex-1 p-4 bg-white rounded shadow-md relative">         
+            <canvas id="canvas" class="border border-gray-300 w-full h-[500px]"></canvas>
+            <svg id="svg-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+                </marker>
+            </svg>
+            <!-- pointer-events: none; -->
+            <div id="canvas-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" class="absolute inset-0"></div>
+        </div>
+    </div>
+
+    <script src="fetch.js"></script>
+    <script src="buttons.js"></script>
+    <script src="lines.js"></script>
+</body>
+</html>
