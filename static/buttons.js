@@ -37,7 +37,6 @@ function addNodeToCanvas(name, x, y) {
                 if (button1 === newButton || button2 === newButton) {
                     // Remove the line from the SVG layer
                     line.remove();
-                    console.log(line, button1, button2)
                     return false; // Exclude this line from the lines array
                 }
                 return true; // Keep other lines
