@@ -1,29 +1,7 @@
-#canvas-overlay {
-    position: relative;
-    pointer-events: none;
+#generate-button {
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
-
-.cursor-move {
-    z-index: 10;
-    position: absolute;
+.pressed {
+    background-color: #2e7d32 !important;
+    transform: translateY(2px);
 }
-
-.absolute {
-    position: absolute;
-}
-
-#canvas {
-    overflow: auto;
-    position: relative; /* Ensure the canvas is the positioning context */
-}
-
-#svg-layer {
-    pointer-events: auto;
-    z-index: 2;
-}
-
-.flow-line {
-    pointer-events: auto;
-    cursor: pointer; /* Add a cursor to indicate interactivity */
-}
-
