@@ -10,6 +10,7 @@ import (
 var ignoreList = []string{
 	".yaml",
 	".py",
+	".R",
 	".txt",
 	".yml",
 	".md",
