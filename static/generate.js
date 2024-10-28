@@ -1,6 +1,5 @@
 function handleGenerateClick() {
     const generateButton = document.getElementById('generate-button');
-
     // Ensure the browser registers the class addition
     generateButton.classList.add('pressed');
 
@@ -16,12 +15,16 @@ function handleGenerateClick() {
             return;
         }
 
-        // Collect information about connected buttons
-        const lineData = lines.map(({ line, button1, button2 }) => ({
-            button1: button1.textContent,
-            button2: button2.textContent,
-            lineId: line.getAttribute('id'),
-        }));
+        const lineData = lines.map(({ line, button1, button2 }) => {
+            const button1Parents = button1.getAttribute('data-parents');
+            const button2Parents = button2.getAttribute('data-parents');
+
+            return {
+                button1: button1Parents,
+                button2: button2Parents,
+                lineId: line.getAttribute('id'),
+            };
+        });
 
         // Log line data to console after a delay
         setTimeout(() => {

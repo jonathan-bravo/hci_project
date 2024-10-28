@@ -2,6 +2,7 @@ let firstButton = null;
 let lines = [];
 let lineID = 0;
 
+// function drawLine(x1, y1, x2, y2, button1, button1Path, button2, button2Path) {
 function drawLine(x1, y1, x2, y2, button1, button2) {
     // Get the SVG element
     if (button1 !== button2) {
@@ -41,6 +42,7 @@ function drawLine(x1, y1, x2, y2, button1, button2) {
         svg.appendChild(line);
 
         // Store the line with associated buttons
+        // lines.push({ line: line, button1: button1, button1Path: button1Path, button2: button2, button2Path: button2Path});
         lines.push({ line: line, button1: button1, button2: button2 });
     }
 }
@@ -63,6 +65,10 @@ function addLineIfNotExists(button1, button2) {
         const x2 = rect2.left + rect2.width / 2 - overlayRect.left;
         const y2 = rect2.top + rect2.height / 2 - overlayRect.top;
 
+        // const button1Path = button1.getAttribute('data-path');
+        // const button2Path = button2.getAttribute('data-path');
+
+        // drawLine(x1, y1, x2, y2, button1, button1Path, button2, button2Path);
         drawLine(x1, y1, x2, y2, button1, button2);
     }
 }

@@ -1,5 +1,6 @@
 // Canvas functionality
 const canvasOverlay = document.getElementById('canvas-overlay');
+//const buttonPaths = {};
 let buttonID = 0;
 
 canvasOverlay.ondragover = function(event) {
@@ -8,20 +9,24 @@ canvasOverlay.ondragover = function(event) {
 
 canvasOverlay.ondrop = function(event) {
     event.preventDefault();
-    const name = event.dataTransfer.getData('text');
+    const name = event.dataTransfer.getData('text/plain');
+    const path = event.dataTransfer.getData('custom/path');
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    addNodeToCanvas(name, x, y);
+    addNodeToCanvas(name, x, y, path);
 };
 
-function addNodeToCanvas(name, x, y) {
+function addNodeToCanvas(name, x, y, path) {
     // Create a new button element
     const newButton = document.createElement('button');
     newButton.textContent = name;
     newButton.className = 'px-4 py-2 bg-green-500 text-white rounded absolute cursor-move';
     newButton.setAttribute('id', 'button-'+buttonID);
     buttonID++;
+    newButton.setAttribute('data-parents', path);
+
+    //buttonPaths['button-'+buttonID] = path;
 
     newButton.style.left = `${x}px`;
     newButton.style.top = `${y}px`;

@@ -17,6 +17,7 @@ fetch('/wrappers')
         }
 
         function createList(node) {
+            //console.log('Creating list for node:', node.name); //debugging
             const li = document.createElement('li');
             li.classList.add(node.type, 'my-1', 'relative');
 
@@ -48,7 +49,9 @@ fetch('/wrappers')
 
                 // Set drag behavior
                 button.ondragstart = function(event) {
-                    event.dataTransfer.setData('text', node.name);
+                    const parentsPath = getAllParents(button.parentElement);
+                    event.dataTransfer.setData('text/plain', node.name);
+                    event.dataTransfer.setData('custom/path', parentsPath);
                 };
 
                 li.appendChild(button);
@@ -69,3 +72,29 @@ fetch('/wrappers')
 
     })
     .catch(error => console.error(error));
+
+function getAllParents(element) {
+    let parents = [];
+    let currentElement = element;
+
+    // Traverse up the DOM tree
+    while (currentElement) {
+        if (currentElement.tagName === 'LI') {
+            const label = currentElement.querySelector('.node-label') || currentElement.querySelector('.draggable-button');
+            const labelText = label.textContent.trim();
+
+            if (label) {
+                parents.unshift(labelText); // Add to the beginning
+            }
+        }
+        currentElement = currentElement.parentElement;
+
+        // Stop when reaching the <ul> element with id 'tree'
+        if (currentElement && currentElement.id === 'tree') {
+            break;
+        }
+    }
+
+    // Join the parent names to form a path
+    return parents.join('/');
+}
