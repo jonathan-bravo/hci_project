@@ -26,7 +26,25 @@ function handleGenerateClick() {
         // Log line data to console after a delay
         setTimeout(() => {
             console.log('Line Connections:', lineData);
+            sendDataToServer(lineData);
             alert('Generation complete! Check console for line data.');
         }, 50);
     }, 200); // Keep this delay in sync with the CSS transition duration
+}
+
+function sendDataToServer(data) {
+    fetch('/your-endpoint', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Server response:', result);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }

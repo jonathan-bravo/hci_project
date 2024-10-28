@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -57,14 +59,55 @@ type Node struct {
 	Children []Node `json:"children,omitempty"`
 }
 
+type LineConnection struct {
+	Button1 string `json:"button1"`
+	Button2 string `json:"button2"`
+	LineID  string `json:"lineId"`
+}
+
 func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fs)
+
+	// Handle the POST request
+	http.HandleFunc("/your-endpoint", handlePostRequest)
 
 	http.HandleFunc("/wrappers", wrappersHandler)
 	//http.HandleFunc("/", indexHandler)
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+	// Check if the request method is POST
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Parse the JSON array into a slice of structs
+	var lineConnections []LineConnection
+	err = json.Unmarshal(body, &lineConnections)
+	if err != nil {
+		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+		return
+	}
+
+	// Process the array of line connections
+	fmt.Printf("Received line connections: %+v\n", lineConnections)
+
+	// Send a JSON response back to the client
+	response := map[string]string{"status": "success", "message": "Line data received"}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,8 +130,6 @@ func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Prepend staticInputs to entries
 	entries = append(staticInputs, entries...)
-
-	// fmt.Print(entries)
 
 	tree := buildTree(entries)
 	flattenTree(&tree)
@@ -123,13 +164,11 @@ func getTree(ref string) ([]TreeEntry, error) {
 func buildTree(entries []TreeEntry) Node {
 	root := Node{Name: "wrappers", Type: "dir", Children: []Node{}}
 	for _, entry := range entries {
-		// fmt.Println(entry.Path)
 		if shouldIgnore(entry.Path) {
 			continue // Skip this entry
 		}
 
 		parts := strings.Split(entry.Path, "/")
-		//fmt.Println(root)
 		current := &root
 		for i, part := range parts {
 			found := false
