@@ -76,6 +76,19 @@ func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	staticInputs := []TreeEntry{
+		{Path: "INPUTS/Single Fasta", Type: "blob"},
+		{Path: "INPUTS/Single Fastq", Type: "blob"},
+		{Path: "INPUTS/Paired End Fasta", Type: "blob"},
+		{Path: "INPUTS/Paired End Fastq", Type: "blob"},
+	}
+
+	// Prepend staticInputs to entries
+	entries = append(staticInputs, entries...)
+
+	// fmt.Print(entries)
+
 	tree := buildTree(entries)
 	flattenTree(&tree)
 	w.Header().Set("Content-Type", "application/json")
