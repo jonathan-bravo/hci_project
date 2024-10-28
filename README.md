@@ -12,6 +12,5 @@
 - Att basic instuctions at bottom below wrapper list and canvas
 - Be able to zoom in and out of canvas overlay
 - Make the CSS prettier
-- Get full paths for placed buttons
 - Back-query snakemake wrappers github for wrappers-get
 - generate Snakefile
