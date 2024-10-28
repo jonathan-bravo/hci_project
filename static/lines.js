@@ -28,8 +28,6 @@ function drawLine(x1, y1, x2, y2, button1, button2) {
         line.setAttribute('id', 'line-'+lineID);
         lineID++;
 
-        //console.log(line, button1, button2);
-
         line.setAttribute('x1', x1);
         line.setAttribute('y1', y1);
         line.setAttribute('x2', newX2);
@@ -79,19 +77,6 @@ canvasOverlay.addEventListener('click', function(event) {
             // Select the second button and draw a line
             const secondButton = event.target;
             if (firstButton !== secondButton) {
-                // const rect1 = firstButton.getBoundingClientRect();
-                // const rect2 = secondButton.getBoundingClientRect();
-                // const overlayRect = canvasOverlay.getBoundingClientRect();
-
-                // // Calculate centers of the buttons
-                // const x1 = rect1.left + rect1.width / 2 - overlayRect.left;
-                // const y1 = rect1.top + rect1.height / 2 - overlayRect.top;
-                // const x2 = rect2.left + rect2.width / 2 - overlayRect.left;
-                // const y2 = rect2.top + rect2.height / 2 - overlayRect.top;
-
-
-                // // Draw the line
-                // drawLine(x1, y1, x2, y2, firstButton, secondButton);
                 addLineIfNotExists(firstButton, secondButton);
             }
 
