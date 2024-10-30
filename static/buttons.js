@@ -36,6 +36,13 @@ function addNodeToCanvas(name, x, y, path) {
 
     newButton.addEventListener('dblclick', function() {
         if (confirm('Are you sure you want to delete this button?')) {
+
+            //Adding new event to be caught by lines.js to ensure that buttons that are double clicked for deletion are not used for line generation.
+            const deleteEvent = new CustomEvent('buttonDeleted', {
+                detail: { button: newButton }
+            });
+            document.dispatchEvent(deleteEvent);
+
             canvasOverlay.removeChild(newButton);
             // Remove associated lines
             lines = lines.filter(({ line, button1, button2 }) => {
