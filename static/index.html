@@ -6,6 +6,10 @@
     <title>Snakemake Wrappers</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.7/leader-line.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@14.1.3/lib/marked.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="flex flex-col bg-gray-100 p-6 h-screen">
@@ -59,6 +63,19 @@
             </svg>
             <!-- pointer-events: none; -->
             <div id="canvas-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" class="absolute inset-0"></div>
+        </div>
+    </div>
+    <!-- Help Modal -->
+    <div id="help-popup" class="markdown-body hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white p-6 rounded shadow-lg w-3/4 max-h-3/4 overflow-auto">
+            <h2 class="text-xl font-bold mb-4">Help</h2>
+            <div id="help-content" class="prose"></div>
+            <button 
+                class="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+                onclick="closeHelpPopup()"
+            >
+                Close
+            </button>
         </div>
     </div>
     <script src="help.js"></script>

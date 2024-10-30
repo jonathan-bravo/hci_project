@@ -1,14 +1,36 @@
 function showHelp() {
+    const markedInstance = new marked.Marked();
     const helpButton = document.getElementById('help-button');
-    // Ensure the browser registers the class addition
     helpButton.classList.add('pressed');
 
-    // Use a setTimeout to create a delay before removing the pressed class
     setTimeout(() => {
         helpButton.classList.remove('pressed');
-        
-        setTimeout(() => {
-            alert('Help');
-        }, 50);
-    }, 100); // Keep this delay in sync with the CSS transition duration
+
+        // Fetch the README from the /readme endpoint
+        fetch('/readme')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load the README file');
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Parse and display the Markdown content
+                const helpContent = document.getElementById('help-content');
+                helpContent.innerHTML = markedInstance.parse(data);
+
+                // Show the modal
+                const helpPopup = document.getElementById('help-popup');
+                helpPopup.classList.remove('hidden');
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+    }, 100);
+}
+
+// Function to close the help popup
+function closeHelpPopup() {
+    const helpPopup = document.getElementById('help-popup');
+    helpPopup.classList.add('hidden');
 }

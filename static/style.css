@@ -33,3 +33,7 @@
 .node-label.expanded {
     background-color: #d0d0d0;
 }
+
+.markdown-body {
+    color: black;
+}

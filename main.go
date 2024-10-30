@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -69,6 +70,9 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fs)
 
+	// README.md handler
+	http.HandleFunc("/readme", readmeHandler)
+
 	// Handle the POST request
 	http.HandleFunc("/your-endpoint", handlePostRequest)
 
@@ -76,6 +80,16 @@ func main() {
 	//http.HandleFunc("/", indexHandler)
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func readmeHandler(w http.ResponseWriter, r *http.Request) {
+	content, err := os.ReadFile("README.md")
+	if err != nil {
+		http.Error(w, "Failed to read README file", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write(content)
 }
 
 func handlePostRequest(w http.ResponseWriter, r *http.Request) {
