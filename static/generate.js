@@ -32,7 +32,7 @@ function handleGenerateClick() {
             sendDataToServer(lineData);
             alert('Generation complete! Check console for line data.');
         }, 50);
-    }, 200); // Keep this delay in sync with the CSS transition duration
+    }, 100); // Keep this delay in sync with the CSS transition duration
 }
 
 function sendDataToServer(data) {

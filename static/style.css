@@ -1,9 +1,5 @@
-#generate-button {
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
 .pressed {
-    background-color: #2e7d32 !important;
-    transform: translateY(2px);
+    transform: translateY(1px);
 }
 
 /* Style for the buttons */

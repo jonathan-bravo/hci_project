@@ -2,12 +2,10 @@
 
 ## Issues
 
-- Random line connects to last node when removing partner node
-- When search is empty nothing shows in lists
-
 ## Todo
 
-- Add basic instuctions at bottom below wrapper list and canvas
+- Add a help button
+  - Parse readme into html alert for help button
 - Be able to zoom in and out of canvas overlay
 - Make the CSS prettier
 - Back-query snakemake wrappers github for wrappers-get
