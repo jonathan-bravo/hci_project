@@ -5,3 +5,35 @@
     background-color: #2e7d32 !important;
     transform: translateY(2px);
 }
+
+/* Style for the buttons */
+.draggable-button {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    margin: 8px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Style for node labels */
+.node-label {
+    position: relative;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin: 2px 0;
+    background-color: #f0f0f0;
+    border: 2px solid #d0d0d0;
+    border-radius: 10px;
+    transition: background-color 0.2s
+}
+
+/* Style for expanded node labels */
+.node-label.expanded {
+    background-color: #d0d0d0;
+}

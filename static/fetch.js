@@ -24,22 +24,17 @@ fetch('/wrappers')
             // Toggle button for collapsing if node has children
             if (node.children && node.children.length > 0) {
                 const toggleButton = document.createElement('button');
-                toggleButton.textContent = '+';
-                toggleButton.className = 'toggle-button mr-2 text-lg text-gray-600 focus:outline-none';
+                toggleButton.textContent = node.name;
+                toggleButton.className = 'node-label toggle-button mr-2 text-lg text-gray-600 focus:outline-none';
                 toggleButton.onclick = function() {
                     const childList = li.querySelector('ul');
                     if (childList) {
                         childList.classList.toggle('hidden');
-                        toggleButton.textContent = childList.classList.contains('hidden') ? '+' : '−';
+                        toggleButton.classList.toggle('expanded');
                     }
                 };
                 li.appendChild(toggleButton);
 
-                // Add label for non-leaf nodes
-                const label = document.createElement('span');
-                label.textContent = node.name;
-                label.className = 'node-label';
-                li.appendChild(label);
             } else {
                 // Add button only for leaf nodes
                 const button = document.createElement('button');
