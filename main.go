@@ -255,14 +255,14 @@ func generateSmk(dagNodes []DAGNode) string {
 		content.WriteString(fmt.Sprintf("\n	output:\n		\"%s\"", node.Outputs))
 		content.WriteString(fmt.Sprintf("\n	params:\n		\"%s\"", node.Params))
 		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
-		content.WriteString(fmt.Sprintf("\n	wrapper:\n		\"%s\"\n", node.Path))
+		content.WriteString(fmt.Sprintf("\n	wrapper:\n		\"%s\"\n\n", node.Path))
 	}
 	return content.String()
 }
 
 // Writes out the snakemake string to a file
 func saveSnakemakeFile(content string) error {
-	filePath := "./Snakefile.smk"
+	filePath := "./Snakefile"
 	err := os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
 		return fmt.Errorf("could not write Snakemake file: %v", err)

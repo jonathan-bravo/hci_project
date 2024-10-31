@@ -23,4 +23,4 @@ go.work
 # User additions
 .note
 .DS_Store
-.smk
+Snakefile
