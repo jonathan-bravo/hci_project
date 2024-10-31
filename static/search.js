@@ -21,7 +21,7 @@ function filterListItems(container, searchText) {
         });
         // 2. Collapse all sublists
         allSubLists.forEach(ul => {
-            ul.style.display = ''; //Remove style attribute, which causes their disappearance. This may cause issues later if we use style for CSS.S
+            ul.style.display = '';
         });
         return;
     }

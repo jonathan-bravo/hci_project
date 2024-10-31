@@ -152,11 +152,12 @@ function bringLineToFront(line) {
     svg.appendChild(line); // Re-append the line to bring it to the front
 }
 
-//Handles deleted button event to clear the button from selection to ensure no random lines are generated.
-document.addEventListener('buttonDeleted', function(event) {
-    const deletedButton = event.detail.button;
-    if (firstButton === deletedButton) {
-        firstButton.style.border = '';
-        firstButton = null;
-    }    
-} );
+// Removed because handling the random line issue is simpler now. Kept until we are certain it doesn't reappear.
+
+// document.addEventListener('buttonDeleted', function(event) {
+//     const deletedButton = event.detail.button;
+//     if (firstButton === deletedButton) {
+//         firstButton.style.border = '';
+//         firstButton = null;
+//     }    
+// } );
