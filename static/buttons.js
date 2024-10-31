@@ -17,6 +17,8 @@ canvasOverlay.ondrop = function(event) {
     addNodeToCanvas(name, x, y, path);
 };
 
+// Added more attributes to each button so that the JSON can be populated easier later.
+// In the future, need to add way to change this attributes. Have a concept in mind, will be next feature I work on.
 function addNodeToCanvas(name, x, y, path) {
     // Create a new button element
     const newButton = document.createElement('button');
@@ -25,6 +27,10 @@ function addNodeToCanvas(name, x, y, path) {
     newButton.setAttribute('id', 'button-'+buttonID);
     buttonID++;
     newButton.setAttribute('data-parents', path);
+    newButton.setAttribute('inputs', name+'.input')
+    newButton.setAttribute('outputs', name+'.output')
+    newButton.setAttribute('params', '-f -z -g')
+    newButton.setAttribute('threads', '32')
 
     //buttonPaths['button-'+buttonID] = path;
 
@@ -36,12 +42,12 @@ function addNodeToCanvas(name, x, y, path) {
 
     newButton.addEventListener('dblclick', function() {
         if (confirm('Are you sure you want to delete this button?')) {
-
-            //Adding new event to be caught by lines.js to ensure that buttons that are double clicked for deletion are not used for line generation.
-            const deleteEvent = new CustomEvent('buttonDeleted', {
-                detail: { button: newButton }
-            });
-            document.dispatchEvent(deleteEvent);
+            
+            // Simplified fixing the random line issue.
+            if (firstButton === newButton) {
+                firstButton.style.border = '';
+                firstButton = null;
+            }
 
             canvasOverlay.removeChild(newButton);
             // Remove associated lines

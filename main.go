@@ -66,6 +66,18 @@ type LineConnection struct {
 	LineID  string `json:"lineId"`
 }
 
+//New struct for storing DAG information to handle more complicated user input down the line.
+type DAGNode struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Inputs string `json:"inputs"`
+	Outputs string `json:"outputs"`
+	Path string `json:"path"`
+	Params string `json:"params"`
+	Threads string `json:"threads"`
+	DependsOn []string `json:"depends_on"`
+}
+
 func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fs)
@@ -108,18 +120,30 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parse the JSON array into a slice of structs
-	var lineConnections []LineConnection
-	err = json.Unmarshal(body, &lineConnections)
+	// var lineConnections []LineConnection
+	var dagNodes []DAGNode
+	err = json.Unmarshal(body, &dagNodes)
 	if err != nil {
 		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
 		return
 	}
 
-	// Process the array of line connections
-	fmt.Printf("Received line connections: %+v\n", lineConnections)
+	fmt.Printf("Received Dag Nodes: %+v\n", dagNodes)
+	
+	//Generate Snakemake content
+	snakemakeContent := generateSmk(dagNodes)
+
+	fmt.Printf("Generated Snakemake Content: %s\n", snakemakeContent)
+
+	//Output .smk file
+	err = saveSnakemakeFile(snakemakeContent)
+    if err != nil {
+        http.Error(w, "Failed to save Snakemake file", http.StatusInternalServerError)
+        return
+    }
 
 	// Send a JSON response back to the client
-	response := map[string]string{"status": "success", "message": "Line data received"}
+	response := map[string]string{"status": "success", "message": "DAG data received"}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -208,4 +232,42 @@ func buildTree(entries []TreeEntry) Node {
 		}
 	}
 	return root
+}
+
+
+// Generates the snakemake file content as a string, need to update to add output from dependencies to input section of rule
+// Additionally check for correctness
+func generateSmk(dagNodes []DAGNode) string { 
+	var content strings.Builder
+	content.WriteString("# Snakemake Wrapper Generated File\n\n")
+
+	for _,node := range dagNodes {
+		if strings.Contains(node.Path, "INPUTS") {
+			continue //Pure input nodes dont need a rule
+		}
+		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
+
+		content.WriteString(fmt.Sprintf("	input:\n		\"%s\"", node.Inputs))
+		if len(node.DependsOn) > 0 {
+			for _, dep := range node.DependsOn {
+				content.WriteString(fmt.Sprintf(",\n		\"Node ID: %s's outputs\"", dep))
+			}
+		}
+		content.WriteString(fmt.Sprintf("\n	output:\n		\"%s\"", node.Outputs))
+		content.WriteString(fmt.Sprintf("\n	params:\n		\"%s\"", node.Params))
+		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
+		content.WriteString(fmt.Sprintf("\n	wrapper:\n		\"%s\"", node.Path))
+	}
+	return content.String()
+}
+
+
+// Writes out the snakemake string to a file
+func saveSnakemakeFile(content string) error {
+    filePath := "./Snakefile.smk"
+    err := os.WriteFile(filePath, []byte(content), 0644)
+    if err != nil {
+        return fmt.Errorf("could not write Snakemake file: %v", err)
+    }
+    return nil
 }
