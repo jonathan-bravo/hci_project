@@ -37,3 +37,31 @@
 .markdown-body {
     color: black;
 }
+
+#help-popup {
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    overflow: auto; /* Add this to enable overall popup scrolling */
+}
+
+#help-popup .context-container {
+    max-height: 80vh; /* Limits modal height relative to viewport */
+    overflow-y: auto; /* Enables vertical scrolling within the content */
+    width: 90%; /* Adjust width as needed */
+    max-width: 800px; /* Optional: prevent it from getting too wide on large screens */
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin: 20px; /* Add some margin to prevent touching screen edges */
+}
+
+#help-content {
+    max-height: 70vh; /* Optional: ensure content has a max height */
+    overflow-y: auto; /* Ensure scrolling within the help content */
+}

@@ -15,9 +15,14 @@ function showHelp() {
                 return response.text();
             })
             .then(data => {
+                let htmlContent = markedInstance.parse(data);
+
+                // Remove 'static/' from image paths
+                htmlContent = htmlContent.replace(/src="static\//g, 'src="');
+                
                 // Parse and display the Markdown content
                 const helpContent = document.getElementById('help-content');
-                helpContent.innerHTML = markedInstance.parse(data);
+                helpContent.innerHTML = htmlContent;
 
                 // Show the modal
                 const helpPopup = document.getElementById('help-popup');
