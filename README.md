@@ -24,3 +24,6 @@ Names of tools can be typed into the search bar and the list of wrappers will fi
 
 - Make the CSS prettier
 - Back-query snakemake wrappers github for wrappers-get
+- Add block on top of search and canvas for param input on tools
+- Haveing a collapasble Snakefile canvas (like overleaf) that shows the file
+  - Snakemake can be downloaded from here if desired
