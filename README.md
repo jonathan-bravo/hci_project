@@ -7,14 +7,56 @@
 
 ### How to search
 
-![Search Bar](static/img/SearchBar.png)
+![Search Bar](static/img/searchBar.png)
 
-Names of tools can be typed into the search bar and the list of wrappers will filter and display all matching tools. The search bar can be cleared by deleting the text or by pressing the clear button.
+Names of tools can be typed into the search bar and the list of wrappers will
+filter and display all matching tools. The search bar can be cleared by deleting
+the text or by pressing the clear button.
 
 ### How to place tools
+
+Once the wrapper list on the left is expanded and tool in blue can be dragged
+to the left onto the canvas.
+
+![Dragging Tool](static/img/dragging.png)
+
+Once the tools has been dragged to the canvas it will turn green.
+
+![Placing Tool](static/img/placedTools.png)
+
 ### How to connect tools
+
+To connect the tools you click on the 'first button' and will see a blue
+outline around the button.
+
+![Selecting Tool](static/img/selectTool.png)
+
+Then you click on the second tool and an arrow will be drawn from `button1` to
+`button2`.
+
+![Connecting Tools](static/img/connectTool.png)
+
 ### How to remove tools/ connections
+
+To remove tools or connections you simply double click on of the green buttons
+and an alert will apear to confirm that you want to delete the item.
+
+![Deleting Tool](static/img/deleteTool.png)
+
+Once confirmed, the tool button and any lines connected to it will be removed.
+
 ### Getting a Snakefile
+
+Before you can generate your Snakefile, you will create a workflow by dragging
+buttons onto the canvas.
+
+![Workflow Dag](static/img/workflowDag.png)
+
+Then you will click the orange 'Generate' button at the top right of the window.
+An alert will pop up telling you that the data has been sent to the server.
+At this point the server generates the Snakefile.
+
+![Generate Snakemake](static/img/generate.png)
 
 ## Not Yet Supported
 
