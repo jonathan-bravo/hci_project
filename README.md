@@ -61,7 +61,29 @@ At this point the server generates the Snakefile.
 ## Setup to Run Server
 
 Now using [ngrok](https://ngrok.com/) to serve the webapp. To set up you need to
-log into ngrok and export your key to the env.
+log into ngrok and export your key to the env. The app can be launched as
+follows:
+
+```bash
+NGROK_AUTHTOKEN=<TOKEN> go run main.go
+```
+
+This will give you a link to view and interact with the webapp.
+
+If this process does not work you may have to set up the env.
+
+```bash
+git clone https://github.com/jonathan-bravo/hci_project.git
+
+cd hci_project
+
+go mod init hello-ngrok
+
+go get golang.ngrok.com/ngrok
+```
+
+If the `go run` command from above works with your `NGROK_AUTHTOKEN` you can
+safely ignore this part.
 
 ## Not Yet Supported
 
