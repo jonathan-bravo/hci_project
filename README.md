@@ -58,6 +58,11 @@ At this point the server generates the Snakefile.
 
 ![Generate Snakemake](static/img/generate.png)
 
+## Setup to Run Server
+
+Now using [ngrok](https://ngrok.com/) to serve the webapp. To set up you need to
+log into ngrok and export your key to the env.
+
 ## Not Yet Supported
 
 - Importing your own snakefile

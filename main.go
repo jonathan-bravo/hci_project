@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"golang.ngrok.com/ngrok"
+	"golang.ngrok.com/ngrok/config"
 )
 
 var ignoreList = []string{
@@ -89,10 +93,32 @@ func main() {
 	http.HandleFunc("/your-endpoint", handlePostRequest)
 
 	http.HandleFunc("/wrappers", wrappersHandler)
+
+	if err := run(context.Background()); err != nil {
+		log.Fatal(err)
+	}
 	//http.HandleFunc("/", indexHandler)
-	log.Println("Server started on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	//log.Println("Server started on :8080")
+	//log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+func run(ctx context.Context) error {
+	listener, err := ngrok.Listen(ctx,
+		config.HTTPEndpoint(),
+		ngrok.WithAuthtokenFromEnv(),
+	)
+	if err != nil {
+		return err
+	}
+
+	log.Println("Ingress established at:", listener.URL())
+
+	return http.Serve(listener, nil)
+}
+
+// func handler(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintln(w, "Hello from ngrok-go!")
+// }
 
 func readmeHandler(w http.ResponseWriter, r *http.Request) {
 	content, err := os.ReadFile("README.md")
@@ -148,9 +174,9 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "index.html")
-}
+// func indexHandler(w http.ResponseWriter, r *http.Request) {
+// 	http.ServeFile(w, r, "index.html")
+// }
 
 func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 	entries, err := getTree("master")
