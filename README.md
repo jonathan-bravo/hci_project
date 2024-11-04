@@ -46,6 +46,13 @@ and an alert will apear to confirm that you want to delete the item.
 
 Once confirmed, the tool button and any lines connected to it will be removed.
 
+### Moveing Items
+
+The whole canvas can be panned by clicking on the white space and dragging it
+around.
+
+Individual buttons can also be moved by clicking and dragging them.
+
 ### Getting a Snakefile
 
 Before you can generate your Snakefile, you will create a workflow by dragging
