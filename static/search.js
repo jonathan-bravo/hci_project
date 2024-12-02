@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchText = searchBar.value.toLowerCase();
         filterListItems(treeContainer, searchText);
     });
+
+    const snakemakeDisplay = document.getElementById('snakemake-display');
+    if (snakemakeDisplay) {
+        snakemakeDisplay.value = 'No Snakemake file generated yet.';
+    }
 });
 
 function filterListItems(container, searchText) {

@@ -93,13 +93,16 @@ func main() {
 	http.HandleFunc("/readme", readmeHandler)
 
 	// Handle the POST request
-	http.HandleFunc("/your-endpoint", handlePostRequest)
+	http.HandleFunc("/generate-snakefile", handleGenerateSnakemake)
+
+	http.HandleFunc("/download-snakefile", handleDownloadSnakemake)
 
 	http.HandleFunc("/wrappers", wrappersHandler)
 
 	if err := run(context.Background()); err != nil {
 		log.Fatal(err)
 	}
+
 	//http.HandleFunc("/", indexHandler)
 	//log.Println("Server started on :8080")
 	//log.Fatal(http.ListenAndServe(":8080", nil))
@@ -133,7 +136,7 @@ func readmeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+func handleGenerateSnakemake(w http.ResponseWriter, r *http.Request) {
 	// Check if the request method is POST
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -172,9 +175,27 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send a JSON response back to the client
-	response := map[string]string{"status": "success", "message": "DAG data received"}
+	response := map[string]string{
+		"status":           "success",
+		"message":          "DAG data received",
+		"snakemakeContent": snakemakeContent,
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func handleDownloadSnakemake(w http.ResponseWriter, r *http.Request) {
+    filePath := "./Snakefile" // Update to the actual file path
+	snakemakeContent, err := os.ReadFile(filePath)
+	if err != nil {
+        fmt.Printf("Error reading file: %v\n", err)
+		http.Error(w, "Snakefile does not exist", http.StatusNotFound)
+        return
+    }
+	fmt.Printf("Read Snakemake Content: %s\n", snakemakeContent)
+    w.Header().Set("Content-Type", "application/octet-stream")
+    w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
+    w.Write([]byte(snakemakeContent))
 }
 
 // func indexHandler(w http.ResponseWriter, r *http.Request) {
