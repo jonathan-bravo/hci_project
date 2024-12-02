@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"golang.ngrok.com/ngrok"
@@ -268,22 +269,46 @@ func generateSmk(dagNodes []DAGNode) string {
 	var content strings.Builder
 	content.WriteString("# Snakemake Wrapper Generated File\n\n")
 
+	// fmt.Println(dagNodes)
+
 	for _, node := range dagNodes {
+		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
+			content.WriteString(fmt.Sprintf("INPUT = %s:\n\n", node.Name[:len(node.Name)-1]))
 			continue //Pure input nodes dont need a rule
 		}
 		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
 
-		content.WriteString(fmt.Sprintf("	input:\n		\"%s\"", node.Inputs))
+		content.WriteString("\tinput:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
-				content.WriteString(fmt.Sprintf(",\n		\"Node ID: %s's outputs\"", dep))
+				index, _ := strconv.Atoi(dep[7:])
+				if strings.Contains(dagNodes[index].Path, "INPUTS") {
+					content.WriteString("\t\tINPUT")
+				} else {
+					content.WriteString(fmt.Sprintf("\t\t%s", dagNodes[index].Outputs))
+				}
 			}
 		}
-		content.WriteString(fmt.Sprintf("\n	output:\n		\"%s\"", node.Outputs))
-		content.WriteString(fmt.Sprintf("\n	params:\n		\"%s\"", node.Params))
+
+		// if index == 1 {
+		// 	content.WriteString("\tinput:\n\t\tINPUT")
+		// } else {
+		// 	// content.WriteString("\tinput:\n")
+		// 	// if len(node.DependsOn) > 0 {
+		// 	// 	for _, dep := range node.DependsOn {
+		// 	// 		if dep.Contains(node.Path, "INPUTS") {
+
+		// 	// 		}
+		// 	// 		content.WriteString(fmt.Sprintf(",\n\t\t\"Node ID: %s's outputs\"", dep))
+		// 	// 	}
+		// 	// }
+		// 	// content.WriteString(fmt.Sprintf("\tinput:\n\t\t\"%s\"", dagNodes[index-1].Outputs))}
+
+		content.WriteString(fmt.Sprintf("\n	output:\n\t\t\"%s\"", node.Outputs))
+		content.WriteString(fmt.Sprintf("\n	params:\n\t\t\"%s\"", node.Params))
 		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
-		content.WriteString(fmt.Sprintf("\n	wrapper:\n		\"%s\"\n\n", node.Path))
+		content.WriteString(fmt.Sprintf("\n	wrapper:\n\t\t\"%s\"\n\n", node.Path))
 	}
 	return content.String()
 }
