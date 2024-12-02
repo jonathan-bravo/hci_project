@@ -164,7 +164,7 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Generated Snakemake Content: %s\n", snakemakeContent)
 
 	//Output .smk file
-	err = saveSnakemakeFile(w, r, snakemakeContent)
+	err = saveSnakemakeFile(w, snakemakeContent)
 	if err != nil {
 		http.Error(w, "Failed to save Snakemake file", http.StatusInternalServerError)
 		return
@@ -289,11 +289,11 @@ func generateSmk(dagNodes []DAGNode) string {
 }
 
 // Writes out the snakemake string to a file
-func saveSnakemakeFile(w http.ResponseWriter, r *http.Request, content string) error {
+func saveSnakemakeFile(w http.ResponseWriter, content string) error {
 	usr, err := user.Current()
 	if err != nil {
 		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
-		return fmt.Errorf("Unable to determine user's desktop path: %v", err)
+		return fmt.Errorf("unable to determine user's desktop path: %v", err)
 	}
 	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
 
