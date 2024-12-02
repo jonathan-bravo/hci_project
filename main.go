@@ -288,24 +288,24 @@ func generateSmk(dagNodes []DAGNode) string {
 
 		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
 
-		content.WriteString("\tinput:\n")
+		content.WriteString("    input:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
 				index, _ := strconv.Atoi(dep[7:])
 				if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("\t\tINPUT,\n")
+					content.WriteString("        INPUT,\n")
 				} else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("\t\tREFERENCE,\n")
+					content.WriteString("        REFERENCE,\n")
 				} else {
-					content.WriteString(fmt.Sprintf("\t\t%s,\n", dagNodes[index].Outputs))
+					content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
 				}
 			}
 		}
 
-		content.WriteString(fmt.Sprintf("\t output:\n\t\t%s,", node.Outputs))
-		content.WriteString(fmt.Sprintf("\n	params:\n\t\t\"%s\"", node.Params))
-		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
-		content.WriteString(fmt.Sprintf("\n	wrapper:\n\t\t\"%s\"\n\n", node.Path))
+		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
+		content.WriteString(fmt.Sprintf("    params:\n        \"%s\"\n", node.Params))
+		content.WriteString(fmt.Sprintf("    threads: %s\n", node.Threads))
+		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", node.Path))
 	}
 	return content.String()
 }
