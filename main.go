@@ -274,7 +274,7 @@ func generateSmk(dagNodes []DAGNode) string {
 	for _, node := range dagNodes {
 		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
-			content.WriteString(fmt.Sprintf("INPUT = %s:\n\n", node.Name[:len(node.Name)-1]))
+			content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
 			continue //Pure input nodes dont need a rule
 		}
 		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
@@ -290,20 +290,6 @@ func generateSmk(dagNodes []DAGNode) string {
 				}
 			}
 		}
-
-		// if index == 1 {
-		// 	content.WriteString("\tinput:\n\t\tINPUT")
-		// } else {
-		// 	// content.WriteString("\tinput:\n")
-		// 	// if len(node.DependsOn) > 0 {
-		// 	// 	for _, dep := range node.DependsOn {
-		// 	// 		if dep.Contains(node.Path, "INPUTS") {
-
-		// 	// 		}
-		// 	// 		content.WriteString(fmt.Sprintf(",\n\t\t\"Node ID: %s's outputs\"", dep))
-		// 	// 	}
-		// 	// }
-		// 	// content.WriteString(fmt.Sprintf("\tinput:\n\t\t\"%s\"", dagNodes[index-1].Outputs))}
 
 		content.WriteString(fmt.Sprintf("\n	output:\n\t\t\"%s\"", node.Outputs))
 		content.WriteString(fmt.Sprintf("\n	params:\n\t\t\"%s\"", node.Params))
