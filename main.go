@@ -193,6 +193,7 @@ func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 		{Path: "INPUTS/Single Fastq", Type: "blob"},
 		{Path: "INPUTS/Paired End Fasta", Type: "blob"},
 		{Path: "INPUTS/Paired End Fastq", Type: "blob"},
+		{Path: "INPUTS/Reference Fasta", Type: "blob"},
 	}
 
 	// Prepend staticInputs to entries
@@ -274,24 +275,34 @@ func generateSmk(dagNodes []DAGNode) string {
 	for _, node := range dagNodes {
 		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
-			content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
+			if strings.Contains(node.Path, "Reference") {
+				content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Name))
+			} else {
+				content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
+			}
 			continue //Pure input nodes dont need a rule
 		}
+		// } else if strings.Contains(node.Path, "INPUTS") {
+		// 	continue
+		// }
+
 		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
 
 		content.WriteString("\tinput:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
 				index, _ := strconv.Atoi(dep[7:])
-				if strings.Contains(dagNodes[index].Path, "INPUTS") {
-					content.WriteString("\t\tINPUT")
+				if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
+					content.WriteString("\t\tINPUT,\n")
+				} else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
+					content.WriteString("\t\tREFERENCE,\n")
 				} else {
-					content.WriteString(fmt.Sprintf("\t\t%s", dagNodes[index].Outputs))
+					content.WriteString(fmt.Sprintf("\t\t%s,\n", dagNodes[index].Outputs))
 				}
 			}
 		}
 
-		content.WriteString(fmt.Sprintf("\n	output:\n\t\t\"%s\"", node.Outputs))
+		content.WriteString(fmt.Sprintf("\t output:\n\t\t%s,", node.Outputs))
 		content.WriteString(fmt.Sprintf("\n	params:\n\t\t\"%s\"", node.Params))
 		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
 		content.WriteString(fmt.Sprintf("\n	wrapper:\n\t\t\"%s\"\n\n", node.Path))
