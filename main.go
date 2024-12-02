@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"golang.ngrok.com/ngrok"
@@ -164,7 +165,7 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Generated Snakemake Content: %s\n", snakemakeContent)
 
 	//Output .smk file
-	err = saveSnakemakeFile(w, r, snakemakeContent)
+	err = saveSnakemakeFile(w, snakemakeContent)
 	if err != nil {
 		http.Error(w, "Failed to save Snakemake file", http.StatusInternalServerError)
 		return
@@ -192,6 +193,7 @@ func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 		{Path: "INPUTS/Single Fastq", Type: "blob"},
 		{Path: "INPUTS/Paired End Fasta", Type: "blob"},
 		{Path: "INPUTS/Paired End Fastq", Type: "blob"},
+		{Path: "INPUTS/Reference Fasta", Type: "blob"},
 	}
 
 	// Prepend staticInputs to entries
@@ -268,32 +270,52 @@ func generateSmk(dagNodes []DAGNode) string {
 	var content strings.Builder
 	content.WriteString("# Snakemake Wrapper Generated File\n\n")
 
+	// fmt.Println(dagNodes)
+
 	for _, node := range dagNodes {
+		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
+			if strings.Contains(node.Path, "Reference") {
+				content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Name))
+			} else {
+				content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
+			}
 			continue //Pure input nodes dont need a rule
 		}
+		// } else if strings.Contains(node.Path, "INPUTS") {
+		// 	continue
+		// }
+
 		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
 
-		content.WriteString(fmt.Sprintf("	input:\n		\"%s\"", node.Inputs))
+		content.WriteString("    input:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
-				content.WriteString(fmt.Sprintf(",\n		\"Node ID: %s's outputs\"", dep))
+				index, _ := strconv.Atoi(dep[7:])
+				if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
+					content.WriteString("        INPUT,\n")
+				} else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
+					content.WriteString("        REFERENCE,\n")
+				} else {
+					content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
+				}
 			}
 		}
-		content.WriteString(fmt.Sprintf("\n	output:\n		\"%s\"", node.Outputs))
-		content.WriteString(fmt.Sprintf("\n	params:\n		\"%s\"", node.Params))
-		content.WriteString(fmt.Sprintf("\n	threads: %s", node.Threads))
-		content.WriteString(fmt.Sprintf("\n	wrapper:\n		\"%s\"\n\n", node.Path))
+
+		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
+		content.WriteString(fmt.Sprintf("    params:\n        \"%s\"\n", node.Params))
+		content.WriteString(fmt.Sprintf("    threads: %s\n", node.Threads))
+		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", node.Path))
 	}
 	return content.String()
 }
 
 // Writes out the snakemake string to a file
-func saveSnakemakeFile(w http.ResponseWriter, r *http.Request, content string) error {
+func saveSnakemakeFile(w http.ResponseWriter, content string) error {
 	usr, err := user.Current()
 	if err != nil {
 		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
-		return fmt.Errorf("Unable to determine user's desktop path: %v", err)
+		return fmt.Errorf("unable to determine user's desktop path: %v", err)
 	}
 	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
 
