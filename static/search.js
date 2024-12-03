@@ -23,6 +23,17 @@ function filterListItems(container, searchText) {
         // 1. Show all list items
         allListItems.forEach(item => {
             item.style.display = '';
+            for (const c of item.children) {
+                if (c.tagName === "BUTTON" && !c.classList.contains("draggable-button")) {
+                    c.textContent = c.textContent.replace(/[^\x00-\x7F]/g, "")
+                    c.disabled = false;
+                    if (c.classList.contains("expanded")){
+                        c.textContent = c.textContent + "\u2191"
+                    } else{
+                        c.textContent = c.textContent + "\u2193"
+                    }
+                }
+            }
         });
         // 2. Collapse all sublists
         allSubLists.forEach(ul => {
@@ -55,6 +66,12 @@ function filterListItems(container, searchText) {
                     parent.style.display = 'block';
                 }
                 if (parent.tagName === 'LI') {
+                    for (const c of parent.children) {
+                        if (c.tagName === "BUTTON") {
+                            c.disabled = true;
+                            c.textContent = c.textContent.replace(/[^\x00-\x7F]/g, "")
+                        }
+                    }
                     parent.style.display = '';
                 }
                 parent = parent.parentElement;

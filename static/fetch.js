@@ -24,11 +24,18 @@ fetch('/wrappers')
             // Toggle button for collapsing if node has children
             if (node.children && node.children.length > 0) {
                 const toggleButton = document.createElement('button');
-                toggleButton.textContent = node.name;
+                toggleButton.textContent = node.name + "  \u2193";
                 toggleButton.className = 'node-label toggle-button mr-2 text-lg text-gray-600 focus:outline-none';
                 toggleButton.onclick = function() {
+                    if(toggleButton.textContent == node.name + "  \u2193"){
+                        toggleButton.textContent = node.name + "  \u2191";
+                    } else {
+                        toggleButton.textContent = node.name + "  \u2193";
+                    }
+                    
                     const childList = li.querySelector('ul');
                     if (childList) {
+                        // toggleButton.textContent = node.name + "\u2193";
                         childList.classList.toggle('hidden');
                         toggleButton.classList.toggle('expanded');
                     }
