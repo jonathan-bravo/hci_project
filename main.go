@@ -317,6 +317,7 @@ func generateSmk(dagNodes []DAGNode) string {
 		// }
 
 		// ruleName := strings.ReplaceAll(node.Name, " \u2193", "")
+		node.Path = strings.ReplaceAll(strings.ReplaceAll(node.Path, "  \u2193", ""),"  \u2191", "" )
 		ruleName := node.Name
 		if count, exists := ruleNameCount[node.Name]; exists {
 			ruleName = fmt.Sprintf("%s_%d", node.Name, count+1)
@@ -342,7 +343,7 @@ func generateSmk(dagNodes []DAGNode) string {
 		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
 		content.WriteString(fmt.Sprintf("    params:\n        \"%s\"\n", node.Params))
 		content.WriteString(fmt.Sprintf("    threads: %s\n", node.Threads))
-		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", strings.ReplaceAll(node.Path, "  \u2193", "")))
+		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", node.Path))
 	}
 	return content.String()
 }
