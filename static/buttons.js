@@ -27,10 +27,10 @@ function addNodeToCanvas(name, x, y, path) {
     newButton.setAttribute('id', 'button-'+buttonID);
     buttonID++;
     newButton.setAttribute('data-parents', path);
-    newButton.setAttribute('inputs', name+'.input')
-    newButton.setAttribute('outputs', name+'.output')
-    newButton.setAttribute('params', '-f -z -g')
-    newButton.setAttribute('threads', '32')
+    newButton.setAttribute('inputs', '')
+    newButton.setAttribute('outputs', name+'.out')
+    newButton.setAttribute('params', '')
+    newButton.setAttribute('threads', '1')
 
     //buttonPaths['button-'+buttonID] = path;
 
@@ -61,6 +61,7 @@ function addNodeToCanvas(name, x, y, path) {
             });
         }
     });
+    enableParameterEditing(newButton);
     canvasOverlay.appendChild(newButton);
 }
 
@@ -126,40 +127,62 @@ function enableDragging(element) {
     }
 }
 
-function showTab(tabName) {
-    
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+let selectedButton = null; // Track the currently selected button
 
-    if (tabName === 'canvas') {
-        document.getElementById('tab-canvas').classList.add('active');
-        document.getElementById('canvas-tab').style.display = 'block';
-    } else if (tabName === 'snakemake') {
-        document.getElementById('tab-snakemake').classList.add('active');
-        document.getElementById('snakemake-tab').style.display = 'block';
+// Function to handle button selection
+function showParameterEditor(button) {
+
+    // Show the parameter editor
+    const parameterEditor = document.getElementById('parameter-editor');
+    parameterEditor.classList.remove('hidden');
+
+    // Clear previous fields
+    const parameterFields = document.getElementById('parameter-fields');
+    parameterFields.innerHTML = '';
+
+    // Attributes to include in the editor
+    inputButton = button.getAttribute('data-parents').split('/')[0] === 'INPUTS'
+
+    if(inputButton) {
+        editableAttributes = ['outputs'];
+    } else {
+        editableAttributes = ['inputs', 'outputs', 'params', 'threads'];
     }
+
+    editableAttributes.forEach(attr => {
+        const value = button.getAttribute(attr) || '';
+        const field = document.createElement('div');
+        field.className = 'flex gap-2 items-center';
+
+        const label = document.createElement('label');
+        if (inputButton) {
+            label.textContent = 'Filename'
+        } else {
+            label.textContent = attr === 'inputs' ? 'Additional Inputs' : `${attr.charAt(0).toUpperCase() + attr.slice(1)}:`;
+        }
+        label.className = 'w-1/3 font-medium';
+
+        const input = document.createElement('input');
+        input.type = attr === 'threads' ? 'number' : 'text';
+        input.value = value;
+        input.id = `param-${attr}`;
+        input.className = 'flex-grow p-2 border rounded';
+
+        // Attach real-time update listener
+        input.addEventListener('input', () => updateButtonAttribute(button, attr, input.value));
+
+        field.appendChild(label);
+        field.appendChild(input);
+        parameterFields.appendChild(field);
+    });
 }
 
-function downloadSnakemake() {
-    fetch('/download-snakefile')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Snakefile not found. Please generate it first.');
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'Snakefile';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-            console.error('Error downloading Snakefile:', error);
-            alert(error.message);
-        });
+// Function to update button parameters
+function updateButtonAttribute(button, attribute, value) {
+    if (!button) return;
+    button.setAttribute(attribute, value);
+}
+
+function enableParameterEditing(button) {
+    button.addEventListener('click', () => showParameterEditor(button));
 }

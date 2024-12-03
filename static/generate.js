@@ -63,3 +63,27 @@ function handleGenerateClick() {
             
     }, 100);
 }
+
+function downloadSnakemake() {
+    fetch('/download-snakefile')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Snakefile not found. Please generate it first.');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'Snakefile';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error downloading Snakefile:', error);
+            alert(error.message);
+        });
+}

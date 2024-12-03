@@ -37,3 +37,17 @@ document.addEventListener('mouseup', () => {
 function applyTransform() {
     CanvasOverlay.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 }
+
+function showTab(tabName) {
+    
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+
+    if (tabName === 'canvas') {
+        document.getElementById('tab-canvas').classList.add('active');
+        document.getElementById('canvas-tab').style.display = 'block';
+    } else if (tabName === 'snakemake') {
+        document.getElementById('tab-snakemake').classList.add('active');
+        document.getElementById('snakemake-tab').style.display = 'block';
+    }
+}

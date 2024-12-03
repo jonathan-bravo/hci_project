@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/user"
-	"path/filepath"
+	// "os/user"
+	// "path/filepath"
 	"strconv"
 	"strings"
 
@@ -168,7 +168,7 @@ func handleGenerateSnakemake(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Generated Snakemake Content: %s\n", snakemakeContent)
 
 	//Output .smk file
-	err = saveSnakemakeFile(w, snakemakeContent)
+	err = saveSnakemakeFile(snakemakeContent)
 	if err != nil {
 		http.Error(w, "Failed to save Snakemake file", http.StatusInternalServerError)
 		return
@@ -296,11 +296,11 @@ func generateSmk(dagNodes []DAGNode) string {
 	for _, node := range dagNodes {
 		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
-			if strings.Contains(node.Path, "Reference") {
-				content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Name))
-			} else {
-				content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
-			}
+			// if strings.Contains(node.Path, "Reference") {
+			// 	content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Outputs))
+			// } else {
+			// 	content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Outputs))
+			// }
 			continue //Pure input nodes dont need a rule
 		}
 		// } else if strings.Contains(node.Path, "INPUTS") {
@@ -313,13 +313,14 @@ func generateSmk(dagNodes []DAGNode) string {
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
 				index, _ := strconv.Atoi(dep[7:])
-				if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("        INPUT,\n")
-				} else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("        REFERENCE,\n")
-				} else {
-					content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
-				}
+				content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
+				// if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
+				// 	content.WriteString("        INPUT,\n")
+				// } else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
+				// 	content.WriteString("        REFERENCE,\n")
+				// } else {
+					
+				// }
 			}
 		}
 
@@ -332,35 +333,35 @@ func generateSmk(dagNodes []DAGNode) string {
 }
 
 // Writes out the snakemake string to a file
-func saveSnakemakeFile(w http.ResponseWriter, content string) error {
-	usr, err := user.Current()
-	if err != nil {
-		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
-		return fmt.Errorf("unable to determine user's desktop path: %v", err)
-	}
-	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
-
-	// Write the file to the user's desktop
-	err = os.WriteFile(desktopPath, []byte(content), 0644)
-	if err != nil {
-		http.Error(w, "Unable to write Snakefile to desktop", http.StatusInternalServerError)
-		return fmt.Errorf("could not write Snakemake file: %v", err)
-	}
-
-	// Serve the file as a downloadable attachment
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
-	w.Write([]byte(content))
-
-	return nil
-}
-
-// // Writes out the snakemake string to a file
-// func saveSnakemakeFile(content string) error {
-// 	filePath := "./Snakefile"
-// 	err := os.WriteFile(filePath, []byte(content), 0644)
+// func saveSnakemakeFile(w http.ResponseWriter, content string) error {
+// 	usr, err := user.Current()
 // 	if err != nil {
+// 		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
+// 		return fmt.Errorf("unable to determine user's desktop path: %v", err)
+// 	}
+// 	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
+
+// 	// Write the file to the user's desktop
+// 	err = os.WriteFile(desktopPath, []byte(content), 0644)
+// 	if err != nil {
+// 		http.Error(w, "Unable to write Snakefile to desktop", http.StatusInternalServerError)
 // 		return fmt.Errorf("could not write Snakemake file: %v", err)
 // 	}
+
+// 	// Serve the file as a downloadable attachment
+// 	w.Header().Set("Content-Type", "application/octet-stream")
+// 	w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
+// 	w.Write([]byte(content))
+
 // 	return nil
 // }
+
+// Writes out the snakemake string to a file
+func saveSnakemakeFile(content string) error {
+	filePath := "./Snakefile"
+	err := os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("could not write Snakemake file: %v", err)
+	}
+	return nil
+}
