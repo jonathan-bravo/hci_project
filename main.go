@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/user"
-	"path/filepath"
-	"strconv"
+	// "os/user"
+	// "path/filepath"
+	// "strconv"
 	"strings"
 
 	"golang.ngrok.com/ngrok"
@@ -93,13 +93,16 @@ func main() {
 	http.HandleFunc("/readme", readmeHandler)
 
 	// Handle the POST request
-	http.HandleFunc("/your-endpoint", handlePostRequest)
+	http.HandleFunc("/generate-snakefile", handleGenerateSnakemake)
+
+	http.HandleFunc("/download-snakefile", handleDownloadSnakemake)
 
 	http.HandleFunc("/wrappers", wrappersHandler)
 
 	if err := run(context.Background()); err != nil {
 		log.Fatal(err)
 	}
+
 	//http.HandleFunc("/", indexHandler)
 	//log.Println("Server started on :8080")
 	//log.Fatal(http.ListenAndServe(":8080", nil))
@@ -133,7 +136,7 @@ func readmeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+func handleGenerateSnakemake(w http.ResponseWriter, r *http.Request) {
 	// Check if the request method is POST
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -165,16 +168,34 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Generated Snakemake Content: %s\n", snakemakeContent)
 
 	//Output .smk file
-	err = saveSnakemakeFile(w, snakemakeContent)
+	err = saveSnakemakeFile(snakemakeContent)
 	if err != nil {
 		http.Error(w, "Failed to save Snakemake file", http.StatusInternalServerError)
 		return
 	}
 
 	// Send a JSON response back to the client
-	response := map[string]string{"status": "success", "message": "DAG data received"}
+	response := map[string]string{
+		"status":           "success",
+		"message":          "DAG data received",
+		"snakemakeContent": snakemakeContent,
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func handleDownloadSnakemake(w http.ResponseWriter, r *http.Request) {
+    filePath := "./Snakefile" // Update to the actual file path
+	snakemakeContent, err := os.ReadFile(filePath)
+	if err != nil {
+        fmt.Printf("Error reading file: %v\n", err)
+		http.Error(w, "Snakefile does not exist", http.StatusNotFound)
+        return
+    }
+	fmt.Printf("Read Snakemake Content: %s\n", snakemakeContent)
+    w.Header().Set("Content-Type", "application/octet-stream")
+    w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
+    w.Write([]byte(snakemakeContent))
 }
 
 // func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -267,39 +288,47 @@ func buildTree(entries []TreeEntry) Node {
 // Generates the snakemake file content as a string, need to update to add output from dependencies to input section of rule
 // Additionally check for correctness
 func generateSmk(dagNodes []DAGNode) string {
+	idToIndex := make(map[string]int)
+    for index, node := range dagNodes {
+        idToIndex[node.Id] = index
+    }
 	var content strings.Builder
 	content.WriteString("# Snakemake Wrapper Generated File\n\n")
 
 	// fmt.Println(dagNodes)
+	ruleNameCount := make(map[string]int)
 
 	for _, node := range dagNodes {
 		// fmt.Println(index)
 		if strings.Contains(node.Path, "INPUTS") {
-			if strings.Contains(node.Path, "Reference") {
-				content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Name))
-			} else {
-				content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Name))
-			}
+			// if strings.Contains(node.Path, "Reference") {
+			// 	content.WriteString(fmt.Sprintf("REFERENCE = %s\n\n", node.Outputs))
+			// } else {
+			// 	content.WriteString(fmt.Sprintf("INPUT = %s\n\n", node.Outputs))
+			// }
 			continue //Pure input nodes dont need a rule
 		}
-		// } else if strings.Contains(node.Path, "INPUTS") {
-		// 	continue
-		// }
 
-		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
+		ruleName := node.Name
+		if count, exists := ruleNameCount[node.Name]; exists {
+			ruleName = fmt.Sprintf("%s_%d", node.Name, count+1)
+			ruleNameCount[node.Name] = count + 1
+		} else {
+			ruleNameCount[node.Name] = 1
+    }
+
+		content.WriteString(fmt.Sprintf("rule %s:\n", ruleName))
 
 		content.WriteString("    input:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
-				index, _ := strconv.Atoi(dep[7:])
-				if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("        INPUT,\n")
-				} else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
-					content.WriteString("        REFERENCE,\n")
-				} else {
-					content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
-				}
-			}
+                index, exists := idToIndex[dep]
+                if exists {
+                    content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
+                } else {
+                    content.WriteString(fmt.Sprintf("        # Missing dependency: %s\n", dep))
+                }
+            }
 		}
 
 		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
@@ -311,35 +340,35 @@ func generateSmk(dagNodes []DAGNode) string {
 }
 
 // Writes out the snakemake string to a file
-func saveSnakemakeFile(w http.ResponseWriter, content string) error {
-	usr, err := user.Current()
-	if err != nil {
-		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
-		return fmt.Errorf("unable to determine user's desktop path: %v", err)
-	}
-	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
-
-	// Write the file to the user's desktop
-	err = os.WriteFile(desktopPath, []byte(content), 0644)
-	if err != nil {
-		http.Error(w, "Unable to write Snakefile to desktop", http.StatusInternalServerError)
-		return fmt.Errorf("could not write Snakemake file: %v", err)
-	}
-
-	// Serve the file as a downloadable attachment
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
-	w.Write([]byte(content))
-
-	return nil
-}
-
-// // Writes out the snakemake string to a file
-// func saveSnakemakeFile(content string) error {
-// 	filePath := "./Snakefile"
-// 	err := os.WriteFile(filePath, []byte(content), 0644)
+// func saveSnakemakeFile(w http.ResponseWriter, content string) error {
+// 	usr, err := user.Current()
 // 	if err != nil {
+// 		http.Error(w, "Unable to determine user's desktop path", http.StatusInternalServerError)
+// 		return fmt.Errorf("unable to determine user's desktop path: %v", err)
+// 	}
+// 	desktopPath := filepath.Join(usr.HomeDir, "Desktop", "Snakefile")
+
+// 	// Write the file to the user's desktop
+// 	err = os.WriteFile(desktopPath, []byte(content), 0644)
+// 	if err != nil {
+// 		http.Error(w, "Unable to write Snakefile to desktop", http.StatusInternalServerError)
 // 		return fmt.Errorf("could not write Snakemake file: %v", err)
 // 	}
+
+// 	// Serve the file as a downloadable attachment
+// 	w.Header().Set("Content-Type", "application/octet-stream")
+// 	w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
+// 	w.Write([]byte(content))
+
 // 	return nil
 // }
+
+// Writes out the snakemake string to a file
+func saveSnakemakeFile(content string) error {
+	filePath := "./Snakefile"
+	err := os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("could not write Snakemake file: %v", err)
+	}
+	return nil
+}

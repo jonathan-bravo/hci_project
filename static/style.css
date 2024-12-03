@@ -65,3 +65,53 @@
     max-height: 70vh; /* Optional: ensure content has a max height */
     overflow-y: auto; /* Ensure scrolling within the help content */
 }
+
+#tab-container {
+    display: flex;
+    border: 2px solid #cccccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px solid #cccccc;
+    background-color: #f5f5f5;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.tab:last-child {
+    border-right: none;
+}
+
+.tab.active {
+    background-color: #ffffff;
+    color: #333333;
+    font-weight: bold;
+}
+
+.tab:hover {
+    background-color: #eaeaea;
+}
+
+.hidden {
+    display: none;
+}
+
+#snakemake-display {
+    cursor: default;
+    resize: none;
+}
+
+#snakemake-display {
+    flex-grow: 1;
+    width: 100%; /* Match the width of the container */
+    height: 100%; /* Let it stretch to fill the parent */
+    border: 1px solid #ccc; /* Optional: add a border */
+    box-sizing: border-box; /* Include padding in dimensions */
+    resize: none; /* Prevent resizing */
+}

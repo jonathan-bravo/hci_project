@@ -38,8 +38,14 @@
         </div> 
     </nav>
     
-    <div class="flex flex-row h-full p-6 gap-4">
+    <div id="parameter-editor" class="flex flex-col p-4 bg-white rounded shadow-md w-2/3 mb-2 mt-4" style="margin-left: 600px;">
+        <h2 class="text-lg font-semibold mb-2">Block Parameters</h2>
+        <div id="parameter-fields" class="flex flex-col gap-4">
+            <!-- Dynamically generated fields will be added here -->
+        </div>
+    </div>
 
+    <div class="flex flex-row h-full p-6 gap-4">
         <!-- Side bar -->
         <div class="flex flex-col basis-1/4 p-4 bg-white rounded shadow-md">
             <div class="clex gap-2 mb-4">
@@ -63,20 +69,32 @@
                 <ul id="tree" class="list-none overflow-auto"></ul>
             </div>
         </div>
-
-        <!-- Canvas area -->
-        <div id="canvas-area" class="basis-full p-4 bg-white rounded shadow-md relative overflow-hidden">         
-            <!-- pointer-events: none; -->
-            <div id="canvas-overlay" style="position: absolute; top: 0; left: 0; width: 5000px; height: 5000px;" class="absolute inset-0">
-                <canvas id="canvas" class="border border-gray-300 w-full h-full"></canvas>
-                <svg id="svg-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-                    </marker>
-                </svg>
+    
+        <div class="basis-full p-4 bg-white rounded shadow-md relative overflow-hidden">
+            <div id="tab-container">
+                <button id="tab-canvas" onclick="showTab('canvas')" class="tab active">Canvas</button>
+                <button id="tab-snakemake" onclick="showTab('snakemake')" class="tab">Snakefile</button>
+            </div>
+            <div id="canvas-tab" class="tab-content">
+                <div id="canvas-overlay" style="position: relative; width: 100%; height: 100%;">
+                    <canvas id="canvas" class="border border-gray-300 w-full h-full"></canvas>
+                    <svg id="svg-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+                        </marker>
+                    </svg>
+                </div>
+            </div>
+            <div id="snakemake-tab" class="tab-content hidden" style="position: relative; width: 100%; height: 90%;">
+                <textarea id="snakemake-display" readonly class="w-full h-full p-2 border">
+                    No Snakemake file generated yet.
+                </textarea>
+                <button id="download-button" onclick="downloadSnakemake()" class="mt-2 px-12 py-4 bg-blue-500 text-white text-lg rounded">
+                    Download
+                </button>
             </div>
         </div>
-    </div>
+    
     <!-- Help Modal -->
     <div id="help-popup" class="markdown-body hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div class="context-container bg-white p-6 rounded shadow-lg w-3/4 overflow-auto">
