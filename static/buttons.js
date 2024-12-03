@@ -141,7 +141,8 @@ function showParameterEditor(button) {
     parameterFields.innerHTML = '';
 
     // Attributes to include in the editor
-    inputButton = button.getAttribute('data-parents').split('/')[0] === 'INPUTS'
+    // inputButton = button.getAttribute('data-parents').split('/')[0] === 'INPUTS'
+    inputButton = button.getAttribute('data-parents').split('/')[0].includes('INPUTS');
 
     if(inputButton) {
         editableAttributes = ['outputs'];
@@ -158,15 +159,16 @@ function showParameterEditor(button) {
         if (inputButton) {
             label.textContent = 'Filename'
         } else {
-            label.textContent = attr === 'inputs' ? 'Additional Inputs' : `${attr.charAt(0).toUpperCase() + attr.slice(1)}:`;
+            label.textContent = attr === 'inputs' ? 'Additional Inputs:' : `${attr.charAt(0).toUpperCase() + attr.slice(1)}:`;
         }
-        label.className = 'w-1/3 font-medium';
+        label.className = 'w-1/3 font-small';
 
         const input = document.createElement('input');
         input.type = attr === 'threads' ? 'number' : 'text';
         input.value = value;
         input.id = `param-${attr}`;
-        input.className = 'flex-grow p-2 border rounded';
+        // input.className = 'flex-grow p-2 border rounded';
+        input.className = 'flex w-2/3 p-2 border rounded';
 
         // Attach real-time update listener
         input.addEventListener('input', () => updateButtonAttribute(button, attr, input.value));

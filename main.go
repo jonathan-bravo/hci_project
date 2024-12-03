@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	// "os/user"
 	// "path/filepath"
 	// "strconv"
@@ -185,17 +186,17 @@ func handleGenerateSnakemake(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDownloadSnakemake(w http.ResponseWriter, r *http.Request) {
-    filePath := "./Snakefile" // Update to the actual file path
+	filePath := "./Snakefile" // Update to the actual file path
 	snakemakeContent, err := os.ReadFile(filePath)
 	if err != nil {
-        fmt.Printf("Error reading file: %v\n", err)
+		fmt.Printf("Error reading file: %v\n", err)
 		http.Error(w, "Snakefile does not exist", http.StatusNotFound)
-        return
-    }
+		return
+	}
 	fmt.Printf("Read Snakemake Content: %s\n", snakemakeContent)
-    w.Header().Set("Content-Type", "application/octet-stream")
-    w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
-    w.Write([]byte(snakemakeContent))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=Snakefile")
+	w.Write([]byte(snakemakeContent))
 }
 
 // func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -289,9 +290,9 @@ func buildTree(entries []TreeEntry) Node {
 // Additionally check for correctness
 func generateSmk(dagNodes []DAGNode) string {
 	idToIndex := make(map[string]int)
-    for index, node := range dagNodes {
-        idToIndex[node.Id] = index
-    }
+	for index, node := range dagNodes {
+		idToIndex[node.Id] = index
+	}
 	var content strings.Builder
 	content.WriteString("# Snakemake Wrapper Generated File\n\n")
 
@@ -309,32 +310,39 @@ func generateSmk(dagNodes []DAGNode) string {
 			continue //Pure input nodes dont need a rule
 		}
 
+		// strings.ReplaceAll(node.Name, " \u2193", "")
+
+		// if strings.Contains(node.Name, "\u2193") {
+		// 	fmt.Println(node.Name[:len(node.Name)-2])
+		// }
+
+		// ruleName := strings.ReplaceAll(node.Name, " \u2193", "")
 		ruleName := node.Name
 		if count, exists := ruleNameCount[node.Name]; exists {
 			ruleName = fmt.Sprintf("%s_%d", node.Name, count+1)
 			ruleNameCount[node.Name] = count + 1
 		} else {
 			ruleNameCount[node.Name] = 1
-    }
+		}
 
 		content.WriteString(fmt.Sprintf("rule %s:\n", ruleName))
 
 		content.WriteString("    input:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
-                index, exists := idToIndex[dep]
-                if exists {
-                    content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
-                } else {
-                    content.WriteString(fmt.Sprintf("        # Missing dependency: %s\n", dep))
-                }
-            }
+				index, exists := idToIndex[dep]
+				if exists {
+					content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
+				} else {
+					content.WriteString(fmt.Sprintf("        # Missing dependency: %s\n", dep))
+				}
+			}
 		}
 
 		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
 		content.WriteString(fmt.Sprintf("    params:\n        \"%s\"\n", node.Params))
 		content.WriteString(fmt.Sprintf("    threads: %s\n", node.Threads))
-		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", node.Path))
+		content.WriteString(fmt.Sprintf("    wrapper:\n        \"%s\"\n\n", strings.ReplaceAll(node.Path, "  \u2193", "")))
 	}
 	return content.String()
 }
