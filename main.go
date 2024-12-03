@@ -10,7 +10,7 @@ import (
 	"os"
 	// "os/user"
 	// "path/filepath"
-	"strconv"
+	// "strconv"
 	"strings"
 
 	"golang.ngrok.com/ngrok"
@@ -288,10 +288,15 @@ func buildTree(entries []TreeEntry) Node {
 // Generates the snakemake file content as a string, need to update to add output from dependencies to input section of rule
 // Additionally check for correctness
 func generateSmk(dagNodes []DAGNode) string {
+	idToIndex := make(map[string]int)
+    for index, node := range dagNodes {
+        idToIndex[node.Id] = index
+    }
 	var content strings.Builder
 	content.WriteString("# Snakemake Wrapper Generated File\n\n")
 
 	// fmt.Println(dagNodes)
+	ruleNameCount := make(map[string]int)
 
 	for _, node := range dagNodes {
 		// fmt.Println(index)
@@ -303,25 +308,27 @@ func generateSmk(dagNodes []DAGNode) string {
 			// }
 			continue //Pure input nodes dont need a rule
 		}
-		// } else if strings.Contains(node.Path, "INPUTS") {
-		// 	continue
-		// }
 
-		content.WriteString(fmt.Sprintf("rule %s:\n", node.Name)) // Print rule header/name
+		ruleName := node.Name
+		if count, exists := ruleNameCount[node.Name]; exists {
+			ruleName = fmt.Sprintf("%s_%d", node.Name, count+1)
+			ruleNameCount[node.Name] = count + 1
+		} else {
+			ruleNameCount[node.Name] = 1
+    }
+
+		content.WriteString(fmt.Sprintf("rule %s:\n", ruleName))
 
 		content.WriteString("    input:\n")
 		if len(node.DependsOn) > 0 {
 			for _, dep := range node.DependsOn {
-				index, _ := strconv.Atoi(dep[7:])
-				content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
-				// if strings.Contains(dagNodes[index].Path, "INPUTS") && !strings.Contains(dagNodes[index].Path, "Reference") {
-				// 	content.WriteString("        INPUT,\n")
-				// } else if strings.Contains(dagNodes[index].Path, "INPUTS") && strings.Contains(dagNodes[index].Path, "Reference") {
-				// 	content.WriteString("        REFERENCE,\n")
-				// } else {
-					
-				// }
-			}
+                index, exists := idToIndex[dep]
+                if exists {
+                    content.WriteString(fmt.Sprintf("        %s,\n", dagNodes[index].Outputs))
+                } else {
+                    content.WriteString(fmt.Sprintf("        # Missing dependency: %s\n", dep))
+                }
+            }
 		}
 
 		content.WriteString(fmt.Sprintf("    output:\n        %s,\n", node.Outputs))
