@@ -1,17 +1,16 @@
 Define input and reference as a variables
 
-```
-INPUT = X
-REFERENCE = Y
-```
+Input fasta should be named "sample_1.fasta"
+
+Reference should be named "ref.fasta"
 
 Create 3 rules:
 1. Inputs should be Single Fasta and Reference Fasta
 2. trimmomatic single end
-   1. Takes INPUT as input
+   1. Takes "sample_1.fasta" as input
 3. bowtie2 align
    1. Takes trimmomatic output as input
-   2. Takes REFERENCE as input
+   2. Takes "ref.fasta" as input
 4. deepvariant
    1. Takes bowtie2 align output as input
 
@@ -46,8 +45,8 @@ Example rule:
 ```
 rule mem:
     input:
-        INPUT,
-        REFERENCE,
+        se.out,
+        ref.fasta,
     output:
         mem.output,
     params:
@@ -60,43 +59,40 @@ rule mem:
 Final Snakefile made by hand should look like this:
 
 ```
-INPUT = Single Fasta
-
-REFERENCE = Reference Fasta
-
 rule se:
-        input:
-                INPUT,
-         output:
-                "se.output"
-        params:
-                "-f -z -g"
-        threads: 32
-        wrapper:
-                "bio/trimmomatic/se"
+    input:
+        sample_1.fasta,
+    output:
+        se.out,
+    params:
+        "-f -z -g"
+    threads: 32
+    wrapper:
+        "bio/trimmomatic/se"
 
 rule align:
-        input:
-                se.output,
-                REFERENCE,
-         output:
-                "align.output"
-        params:
-                "-f -z -g"
-        threads: 32
-        wrapper:
-                "bio/bowtie2/align"
+    input:
+        se.out,
+        ref.fasta,
+    output:
+        align.out,
+    params:
+        "-f -z -g"
+    threads: 32
+    wrapper:
+        "bio/bowtie2/align"
 
 rule deepvariant:
-        input:
-                align.output,
-         output:
-                "deepvariant.output"
-        params:
-                "-f -z -g"
-        threads: 32
-        wrapper:
-                "bio/deepvariant"
+    input:
+        align.out,
+    output:
+        deepvariant.out,
+    params:
+        "-f -g -z"
+    threads: 32
+    wrapper:
+        "bio/deepvariant"
+
 ```
 
 We need roughly half of the individuals to use our interface first and half to
@@ -117,8 +113,18 @@ figure out if our interface is an improvement...
 
 
 - Population
+  - We want anyone that has some knowledge on how to use a computer and what bioinformatics is
+  - Range from CISE student, to Biologist, to Bioinformatician
 - Hypothesis
+  - Primary: We hypothesise that the novel drag and drop interface will improve time to complete, when constructing simple Snakefiles
+  - Secondary: We hypothesise that the novel drag and drop interface will be less cumbersome to use than searching through the Snakemake Wrapper Repository
 - Study Conditions
+  - Group A: Will do the manual construction first then use SerpenTile
+  - Group B: Will use SerpenTile first and then do the manual contruction
 - Participant Procedure
+  - Outlined above
 - Metrics
+  - Time to complete (primary)
+  - Speak Out Loud -> Labels (secondary)
 - Pilot and Revisions
+  - Do them...
