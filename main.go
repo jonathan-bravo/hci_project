@@ -211,11 +211,8 @@ func wrappersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	staticInputs := []TreeEntry{
-		{Path: "INPUTS/Single Fasta", Type: "blob"},
-		{Path: "INPUTS/Single Fastq", Type: "blob"},
-		{Path: "INPUTS/Paired End Fasta", Type: "blob"},
-		{Path: "INPUTS/Paired End Fastq", Type: "blob"},
-		{Path: "INPUTS/Reference Fasta", Type: "blob"},
+		{Path: "INPUTS/x.fasta", Type: "blob"},
+		{Path: "INPUTS/x.fastq", Type: "blob"},
 	}
 
 	// Prepend staticInputs to entries
@@ -317,7 +314,7 @@ func generateSmk(dagNodes []DAGNode) string {
 		// }
 
 		// ruleName := strings.ReplaceAll(node.Name, " \u2193", "")
-		node.Path = strings.ReplaceAll(strings.ReplaceAll(node.Path, "  \u2193", ""),"  \u2191", "" )
+		node.Path = strings.ReplaceAll(strings.ReplaceAll(node.Path, "  \u2193", ""), "  \u2191", "")
 		ruleName := node.Name
 		if count, exists := ruleNameCount[node.Name]; exists {
 			ruleName = fmt.Sprintf("%s_%d", node.Name, count+1)

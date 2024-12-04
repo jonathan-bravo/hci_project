@@ -1,19 +1,19 @@
 function handleGenerateClick() {
-    const generateButton = document.getElementById('generate-button');
+    // const generateButton = document.getElementById('generate-button');
     const snakemakeDisplay = document.getElementById('snakemake-display');
 
     // Ensure the browser registers the class addition
-    generateButton.classList.add('pressed');
+    // generateButton.classList.add('pressed');
 
     setTimeout(() => {
-        generateButton.classList.remove('pressed');
+        // generateButton.classList.remove('pressed');
 
-        if (lines.length === 0) {
-            setTimeout(() => {
-                alert('No connections to generate output from.');
-            }, 50); // Slight delay to prevent blocking CSS animation
-            return;
-        }
+        // if (lines.length === 0) {
+        //     setTimeout(() => {
+        //         alert('No connections to generate output from.');
+        //     }, 50); // Slight delay to prevent blocking CSS animation
+        //     return;
+        // }
 
         const nodes = [...canvasOverlay.querySelectorAll('button')].map(button => ({
             id: button.getAttribute('id'),
@@ -55,6 +55,8 @@ function handleGenerateClick() {
                 } else {
                     snakemakeDisplay.value = 'No Snakemake content received from the server.';
                 }
+
+                showTab('snakemake');
             })
             .catch(error => {
                 console.error('Error fetching Snakemake file:', error);
